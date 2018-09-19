@@ -83,7 +83,7 @@ def run_epoch():
         compute_loss_fct(XMB, YMB, MMB, clf_logits, lm_logits)
         n_updates += 1
 
-        if n_updates in [1, 2, 3, 4, 4, 5] and n_epochs == 0:
+        if n_updates % 1000 == 0:
             log(save_dir, desc)
 
 def log(save_dir, desc):
