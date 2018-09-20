@@ -46,7 +46,7 @@ def stance(data_dir, n_valid=0.05):
     vaY = np.asarray(vaY, dtype=np.int32)
     test_Y = np.asarray(test_Y, dtype=np.int32)
 
-    return (trX1, trX2, trY), (vaX1, vaX2, vaY), (test_X1, test_X2) #, test_Y)
+    return (trX1, trX2, trY), (vaX1, vaX2, vaY), (test_X1, test_X2, test_Y)
 
 
 def create_pretraing_data_file():

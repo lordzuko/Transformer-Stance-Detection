@@ -83,21 +83,27 @@ def run_epoch():
         compute_loss_fct(XMB, YMB, MMB, clf_logits, lm_logits)
         n_updates += 1
 
-        if n_updates % 1000 == 0:
+        if n_updates % n_train == 0:
             log(save_dir, desc)
+
+
 
 def log(save_dir, desc):
     global best_score
     print("Logging")
     tr_logits, tr_cost = iter_apply(trX[:n_valid], trM[:n_valid], trY[:n_valid])
     va_logits, va_cost = iter_apply(vaX, vaM, vaY)
+    te_logits = iter_predict(teX, teM)
+    te_acc = accuracy_score(teY, np.argmax(te_logits, 1)) * 100.
+
     tr_cost = tr_cost / len(trY[:n_valid])
     va_cost = va_cost / n_valid
     tr_acc = accuracy_score(trY[:n_valid], np.argmax(tr_logits, 1)) * 100.
     va_acc = accuracy_score(vaY, np.argmax(va_logits, 1)) * 100.
-    logger.log(n_epochs=n_epochs, n_updates=n_updates, tr_cost=tr_cost, va_cost=va_cost, tr_acc=tr_acc, va_acc=va_acc)
-    print('%d %d %.3f %.3f %.2f %.2f' % (n_epochs, n_updates, tr_cost, va_cost, tr_acc, va_acc))
 
+
+    logger.log(n_epochs=n_epochs, n_updates=n_updates, tr_cost=tr_cost, va_cost=va_cost, tr_acc=tr_acc, va_acc=va_acc, te_acc=te_acc)
+    print('%d %d %.3f %.3f %.2f %.2f %.2f' % (n_epochs, n_updates, tr_cost, va_cost, tr_acc, va_acc, te_acc))
 
 
 if __name__ == "__main__":
@@ -165,7 +171,7 @@ if __name__ == "__main__":
     print("Encoding dataset...")
     ((trX1, trX2, trY),
      (vaX1, vaX2, vaY),
-     (teX1, teX2)) = encode_dataset(*stance(data_dir, n_valid=args.n_valid),
+     (teX1, teX2, teY)) = encode_dataset(*stance(data_dir, n_valid=args.n_valid),
                                           encoder=text_encoder)
 
     encoder['_start_'] = len(encoder)
@@ -187,6 +193,7 @@ if __name__ == "__main__":
     vaX, vaM = transform_stance(vaX1, vaX2)
     if submit:
         teX, teM = transform_stance(teX1, teX2)
+        n_test = len(teY)
 
     n_train = len(trY)
     n_valid = len(vaY)
